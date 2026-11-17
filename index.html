@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>LumaLink · optical link</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0a0c0f;
+      --card: #161b22;
+      --border: #2d3748;
+      --accent: #00e0c6;
+      --accent-dim: #0a5e54;
+      --text: #e8edf2;
+      --text-dim: #8b9bb0;
+      --danger: #ff5e5e;
+      --radius: 24px;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.6);
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+      padding-top: max(16px, env(safe-area-inset-top));
+      padding-bottom: max(16px, env(safe-area-inset-bottom));
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      background: var(--card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      border: 1px solid var(--border);
+      transition: background 0.2s;
+      position: relative;
+    }
+
+    h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+
+    h1 span {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: var(--accent);
+      background: var(--accent-dim);
+      padding: 2px 10px;
+      border-radius: 40px;
+      letter-spacing: 0.3px;
+    }
+
+    .subhead {
+      color: var(--text-dim);
+      font-size: 0.9rem;
+      margin-bottom: 22px;
+      border-left: 3px solid var(--accent);
+      padding-left: 12px;
+    }
+
+    .mode-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 22px;
+    }
+
+    .mode-tab {
+      flex: 1;
+      background: #1e252e;
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-weight: 600;
+      font-size: 1rem;
+      padding: 14px 0;
+      border-radius: 60px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .mode-tab.active {
+      background: var(--accent);
+      color: #0a0c0f;
+      border-color: var(--accent);
+      box-shadow: 0 0 16px rgba(0, 224, 198, 0.3);
+    }
+
+    .panel {
+      display: none;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .panel.active {
+      display: flex;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--text-dim);
+      font-weight: 600;
+    }
+
+    input[type="text"] {
+      background: #0f1319;
+      border: 1px solid var(--border);
+      border-radius: 40px;
+      padding: 16px 20px;
+      font-size: 1rem;
+      color: var(--text);
+      outline: none;
+      transition: border 0.2s;
+      width: 100%;
+    }
+
+    input[type="text"]:focus {
+      border-color: var(--accent);
+    }
+
+    .toggle-group {
+      display: flex;
+      background: #0f1319;
+      border-radius: 40px;
+      border: 1px solid var(--border);
+      overflow: hidden;
+    }
+
+    .toggle-option {
+      flex: 1;
+      text-align: center;
+      padding: 12px 0;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-dim);
+      cursor: pointer;
+      transition: all 0.2s;
+      background: transparent;
+      border: none;
+    }
+
+    .toggle-option.active {
+      background: var(--accent);
+      color: #0a0c0f;
+    }
+
+    .slider-container {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    input[type="range"] {
+      flex: 1;
+      height: 6px;
+      -webkit-appearance: none;
+      background: #2a3340;
+      border-radius: 10px;
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 24px;
+      height: 24px;
+      background: var(--accent);
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    .speed-label {
+      font-size: 0.9rem;
+      min-width: 70px;
+      text-align: right;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    button {
+      background: var(--accent);
+      color: #0a0c0f;
+      border: none;
+      border-radius: 60px;
+      padding: 16px 24px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 16px rgba(0, 224, 198, 0.2);
+    }
+
+    button.secondary {
+      background: #1e252e;
+      color: var(--text);
+      border: 1px solid var(--border);
+      box-shadow: none;
+    }
+
+    button:active {
+      transform: scale(0.97);
+    }
+
+    button:disabled {
+      opacity: 0.5;
+      pointer-events: none;
+    }
+
+    .status-message {
+      background: #0f1319;
+      border-radius: 40px;
+      padding: 14px 18px;
+      font-size: 0.9rem;
+      color: var(--text-dim);
+      border-left: 3px solid var(--accent);
+      word-break: break-word;
+    }
+
+    .status-message.error {
+      border-left-color: var(--danger);
+      color: var(--danger);
+    }
+
+    .camera-container {
+      position: relative;
+      border-radius: 24px;
+      overflow: hidden;
+      background: #000;
+      aspect-ratio: 4/3;
+      width: 100%;
+      border: 1px solid var(--border);
+    }
+
+    #cameraPreview {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .reticle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 80px;
+      height: 80px;
+      border: 2px solid var(--accent);
+      border-radius: 50%;
+      box-shadow: 0 0 20px rgba(0, 224, 198, 0.5);
+      pointer-events: none;
+    }
+
+    .reticle::before,
+    .reticle::after {
+      content: '';
+      position: absolute;
+      background: var(--accent);
+    }
+
+    .reticle::before {
+      top: 50%;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      transform: translateY(-50%);
+    }
+
+    .reticle::after {
+      left: 50%;
+      top: 0;
+      width: 2px;
+      height: 100%;
+      transform: translateX(-50%);
+    }
+
+    .reticle-dot {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 8px;
+      height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      transform: translate(-50%, -50%);
+      box-shadow: 0 0 16px var(--accent);
+    }
+
+    .brightness-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: var(--text-dim);
+    }
+
+    .bar-bg {
+      flex: 1;
+      height: 12px;
+      background: #1e252e;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      background: var(--accent);
+      transition: width 0.05s linear;
+    }
+
+    .decoded-text {
+      background: #0f1319;
+      border-radius: 20px;
+      padding: 16px;
+      font-family: 'Courier New', monospace;
+      font-size: 1.1rem;
+      word-break: break-word;
+      min-height: 70px;
+      border: 1px solid var(--border);
+      color: var(--accent);
+      letter-spacing: 1px;
+    }
+
+    .row-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .row-buttons button {
+      flex: 1;
+    }
+
+    .badge {
+      background: #1e252e;
+      border-radius: 40px;
+      padding: 6px 14px;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .note {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      line-height: 1.4;
+      margin-top: 6px;
+    }
+
+    /* fullscreen strobe mode */
+    .strobe-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: white;
+      z-index: 9999;
+      display: none;
+      pointer-events: none;
+    }
+
+    .strobe-overlay.active {
+      display: block;
+    }
+
+    .small-icon {
+      font-size: 1.2rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+  <div class="app" id="app">
+    <h1>LumaLink <span>Li-Fi</span></h1>
+    <div class="subhead">optical communication · send with light</div>
+
+    <div class="mode-tabs">
+      <button class="mode-tab active" data-mode="transmit">📤 Transmit</button>
+      <button class="mode-tab" data-mode="receive">📥 Receive</button>
+    </div>
+
+    <!-- TRANSMIT PANEL -->
+    <div class="panel active" id="transmitPanel">
+      <div class="field">
+        <label>MESSAGE</label>
+        <input type="text" id="messageInput" placeholder="e.g. Hello" maxlength="32" value="HELLO">
+      </div>
+
+      <div class="field">
+        <label>LIGHT SOURCE</label>
+        <div class="toggle-group" id="sourceToggle">
+          <button class="toggle-option active" data-source="strobe">📱 SCREEN STROBE</button>
+          <button class="toggle-option" data-source="torch">🔦 FLASHLIGHT</button>
+        </div>
+        <div class="note" id="sourceHint">Screen strobe works on all devices (iOS/Android). Flashlight requires Chrome Android + HTTPS.</div>
+      </div>
+
+      <div class="field">
+        <label>PULSE DURATION</label>
+        <div class="slider-container">
+          <input type="range" id="speedSlider" min="40" max="400" value="120" step="10">
+          <span class="speed-label" id="speedValue">120 ms</span>
+        </div>
+        <div class="note">Slower = more reliable · Faster = quicker transmission</div>
+      </div>
+
+      <button id="sendBtn">
+        <span class="small-icon">⚡</span> Send message
+      </button>
+
+      <div class="status-message" id="transmitStatus">
+        Ready. Type a message and tap Send.
+      </div>
+    </div>
+
+    <!-- RECEIVE PANEL -->
+    <div class="panel" id="receivePanel">
+      <div class="camera-container">
+        <video id="cameraPreview" autoplay playsinline muted></video>
+        <div class="reticle">
+          <div class="reticle-dot"></div>
+        </div>
+      </div>
+
+      <div class="brightness-bar">
+        <span>Luminance</span>
+        <div class="bar-bg">
+          <div class="bar-fill" id="brightnessFill" style="width: 0%;"></div>
+        </div>
+        <span id="brightnessValue">0</span>
+      </div>
+
+      <div class="row-buttons">
+        <button id="calibrateBtn" class="secondary">
+          <span class="small-icon">🎯</span> Calibrate
+        </button>
+        <button id="startCameraBtn">
+          <span class="small-icon">📷</span> Start camera
+        </button>
+      </div>
+
+      <div class="field">
+        <label>DECODED MESSAGE</label>
+        <div class="decoded-text" id="decodedText">—</div>
+      </div>
+
+      <div class="status-message" id="receiveStatus">
+        Point the camera at the transmitter. Calibrate first.
+      </div>
+      <div class="note" id="cameraHint">Rear camera required. Make sure the reticle captures the light source.</div>
+    </div>
+
+    <!-- hidden canvas -->
+    <canvas id="analysisCanvas" style="display: none;"></canvas>
+  </div>
+
+  <!-- fullscreen strobe overlay -->
+  <div class="strobe-overlay" id="strobeOverlay"></div>
+
+  <script>
+    (function() {
+      "use strict";
+
+      // ---------- DOM refs ----------
+      const app = document.getElementById('app');
+      const transmitPanel = document.getElementById('transmitPanel');
+      const receivePanel = document.getElementById('receivePanel');
+      const modeTabs = document.querySelectorAll('.mode-tab');
+      const messageInput = document.getElementById('messageInput');
+      const sourceToggle = document.getElementById('sourceToggle');
+      const sourceHint = document.getElementById('sourceHint');
+      const speedSlider = document.getElementById('speedSlider');
+      const speedValue = document.getElementById('speedValue');
+      const sendBtn = document.getElementById('sendBtn');
+      const transmitStatus = document.getElementById('transmitStatus');
+      const cameraPreview = document.getElementById('cameraPreview');
+      const brightnessFill = document.getElementById('brightnessFill');
+      const brightnessValue = document.getElementById('brightnessValue');
+      const calibrateBtn = document.getElementById('calibrateBtn');
+      const startCameraBtn = document.getElementById('startCameraBtn');
+      const decodedText = document.getElementById('decodedText');
+      const receiveStatus = document.getElementById('receiveStatus');
+      const cameraHint = document.getElementById('cameraHint');
+      const analysisCanvas = document.getElementById('analysisCanvas');
+      const ctx = analysisCanvas.getContext('2d', { willReadFrequently: true });
+      const strobeOverlay = document.getElementById('strobeOverlay');
+
+      // ---------- State ----------
+      let currentMode = 'transmit';
+      let selectedSource = 'strobe'; // 'strobe' | 'torch'
+      let pulseMs = 120;
+      let isTransmitting = false;
+      let torchStream = null;
+      let torchTrack = null;
+      let cameraStream = null;
+      let isCameraActive = false;
+      let animationFrameId = null;
+      let lastBrightness = 0;
+      let calibrationDone = false;
+      let thresholdLow = 30;
+      let thresholdHigh = 180;
+      let isReceiving = false; // for decoding state machine
+      let receiveState = 'idle'; // 'idle' | 'preamble' | 'data' | 'postamble' | 'done'
+      let bitBuffer = [];
+      let decodedBits = [];
+      let lastEdgeTime = 0;
+      let lightOn = false;
+      let sampleInterval = null;
+      let decodeTimeout = null;
+      let lastBrightnessSample = 0;
+      let brightnessHistory = [];
+      let calibrated = false;
+
+      // timing
+      const PREAMBLE_BITS = [1,0,1,0,1,0,1,0,1,0]; // 1010101010 = start
+      const POSTAMBLE_BITS = [0,1,0,1,0,1,0,1,0,1]; // 0101010101 = stop
+      const BIT_DURATION_FACTOR = 1.0; // uses pulseMs
+
+      // ---------- helpers ----------
+      function setStatus(el, msg, isError = false) {
+        el.textContent = msg;
+        el.classList.toggle('error', isError);
+      }
+
+      function setSpeedDisplay() {
+        speedValue.textContent = pulseMs + ' ms';
+      }
+
+      // ---------- mode switching ----------
+      modeTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          const mode = tab.dataset.mode;
+          if (mode === currentMode) return;
+
+          // stop any transmission if leaving transmit
+          if (currentMode === 'transmit' && isTransmitting) {
+            stopTransmission();
+          }
+
+          // stop camera if leaving receive
+          if (currentMode === 'receive' && isCameraActive) {
+            stopCamera();
+          }
+
+          modeTabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          currentMode = mode;
+
+          if (mode === 'transmit') {
+            transmitPanel.classList.add('active');
+            receivePanel.classList.remove('active');
+          } else {
+            receivePanel.classList.add('active');
+            transmitPanel.classList.remove('active');
+            // auto-start camera? no, let user tap
+            if (!isCameraActive) {
+              setStatus(receiveStatus, 'Tap "Start camera" to begin.', false);
+            }
+          }
+        });
+      });
+
+      // ---------- source toggle ----------
+      sourceToggle.querySelectorAll('.toggle-option').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const src = btn.dataset.source;
+          if (src === selectedSource) return;
+          sourceToggle.querySelectorAll('.toggle-option').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          selectedSource = src;
+
+          if (src === 'torch') {
+            sourceHint.textContent = 'Flashlight requires Chrome for Android + HTTPS. iOS does not support torch.';
+          } else {
+            sourceHint.textContent = 'Screen strobe works on all devices (iOS/Android).';
+          }
+        });
+      });
+
+      // ---------- speed slider ----------
+      speedSlider.addEventListener('input', (e) => {
+        pulseMs = parseInt(e.target.value, 10);
+        setSpeedDisplay();
+      });
+      setSpeedDisplay();
+
+      // ---------- STROBE OVERLAY ----------
+      function flashStrobe(on) {
+        if (on) {
+          strobeOverlay.style.background = '#ffffff';
+          strobeOverlay.classList.add('active');
+        } else {
+          strobeOverlay.style.background = '#000000';
+          strobeOverlay.classList.remove('active');
+        }
+      }
+
+      // ---------- TORCH CONTROL ----------
+      async function tryEnableTorch(on) {
+        try {
+          if (!torchTrack) {
+            console.warn('No torch track');
+            return false;
+          }
+          await torchTrack.applyConstraints({
+            advanced: [{ torch: on }]
+          });
+          return true;
+        } catch (err) {
+          console.warn('Torch applyConstraints failed:', err);
+          return false;
+        }
+      }
+
+      // ---------- TRANSMISSION ----------
+      function textToBits(text) {
+        // simple: each char -> 8 bits (UTF-8-ish, but we'll use charCodeAt & 0xFF)
+        const bits = [];
+        for (let i = 0; i < text.length; i++) {
+          const code = text.charCodeAt(i) & 0xFF;
+          for (let b = 7; b >= 0; b--) {
+            bits.push((code >> b) & 1);
+          }
+        }
+        return bits;
+      }
+
+      function sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+      }
+
+      async function transmitPulseSequence(bits, lightOnFn, lightOffFn, durationMs) {
+        for (let i = 0; i < bits.length; i++) {
+          if (bits[i] === 1) {
+            await lightOnFn();
+          } else {
+            await lightOffFn();
+          }
+          await sleep(durationMs);
+        }
+        // ensure off at end
+        await lightOffFn();
+      }
+
+      async function startTransmission() {
+        if (isTransmitting) return;
+
+        const text = messageInput.value.trim();
+        if (!text) {
+          setStatus(transmitStatus, 'Please enter a message.', true);
+          return;
+        }
+
+        // check torch support if selected
+        if (selectedSource === 'torch') {
+          if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+            setStatus(transmitStatus, 'Camera/torch not supported. Falling back to screen strobe.', true);
+            selectedSource = 'strobe';
+            sourceToggle.querySelectorAll('.toggle-option').forEach(b => {
+              b.classList.toggle('active', b.dataset.source === 'strobe');
+            });
+            sourceHint.textContent = 'Screen strobe works on all devices.';
+          } else {
+            try {
+              // request camera just for torch
+              torchStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' }
+              });
+              torchTrack = torchStream.getVideoTracks()[0];
+              const caps = torchTrack.getCapabilities ? torchTrack.getCapabilities() : {};
+              if (!caps.torch) {
+                setStatus(transmitStatus, 'Torch not available. Switching to screen strobe.', true);
+                torchStream.getTracks().forEach(t => t.stop());
+                torchStream = null;
+                torchTrack = null;
+                selectedSource = 'strobe';
+                sourceToggle.querySelectorAll('.toggle-option').forEach(b => {
+                  b.classList.toggle('active', b.dataset.source === 'strobe');
+                });
+                sourceHint.textContent = 'Screen strobe works on all devices.';
+              }
+            } catch (err) {
+              setStatus(transmitStatus, 'Camera access denied. Using screen strobe.', true);
+              selectedSource = 'strobe';
+              sourceToggle.querySelectorAll('.toggle-option').forEach(b => {
+                b.classList.toggle('active', b.dataset.source === 'strobe');
+              });
+              sourceHint.textContent = 'Screen strobe works on all devices.';
+            }
+          }
+        }
+
+        isTransmitting = true;
+        sendBtn.disabled = true;
+        setStatus(transmitStatus, 'Transmitting...');
+
+        try {
+          const dataBits = textToBits(text);
+          const fullBits = [...PREAMBLE_BITS, ...dataBits, ...POSTAMBLE_BITS];
+          const duration = Math.max(30, pulseMs);
+
+          // define light control functions
+          let lightOn, lightOff;
+
+          if (selectedSource === 'torch' && torchTrack) {
+            lightOn = async () => {
+              const ok = await tryEnableTorch(true);
+              if (!ok) {
+                // fallback to strobe
+                flashStrobe(true);
+              }
+            };
+            lightOff = async () => {
+              const ok = await tryEnableTorch(false);
+              if (!ok) {
+                flashStrobe(false);
+              }
+            };
+          } else {
+            lightOn = async () => flashStrobe(true);
+            lightOff = async () => flashStrobe(false);
+          }
+
+          // transmit each bit
+          for (let i = 0; i < fullBits.length; i++) {
+            if (!isTransmitting) break; // abort
+            if (fullBits[i] === 1) {
+              await lightOn();
+            } else {
+              await lightOff();
+            }
+            await sleep(duration);
+          }
+
+          // ensure off
+          await lightOff();
+
+          if (isTransmitting) {
+            setStatus(transmitStatus, `✅ Sent "${text}" (${fullBits.length} pulses)`);
+          }
+        } catch (err) {
+          console.error(err);
+          setStatus(transmitStatus, 'Transmission error: ' + err.message, true);
+        } finally {
+          isTransmitting = false;
+          sendBtn.disabled = false;
+          flashStrobe(false);
+          // stop torch if active
+          if (torchTrack) {
+            try { await torchTrack.applyConstraints({ advanced: [{ torch: false }] }); } catch (e) {}
+          }
+        }
+      }
+
+      function stopTransmission() {
+        isTransmitting = false;
+        flashStrobe(false);
+        if (torchTrack) {
+          try { torchTrack.applyConstraints({ advanced: [{ torch: false }] }); } catch (e) {}
+        }
+      }
+
+      sendBtn.addEventListener('click', startTransmission);
+
+      // ---------- RECEIVE / CAMERA ----------
+      async function startCamera() {
+        if (isCameraActive) return;
+
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+          setStatus(receiveStatus, 'Camera API not available. HTTPS required.', true);
+          return;
+        }
+
+        try {
+          cameraStream = await navigator.mediaDevices.getUserMedia({
+            video: {
+              facingMode: 'environment',
+              width: { ideal: 640 },
+              height: { ideal: 480 }
+            },
+            audio: false
+          });
+
+          cameraPreview.srcObject = cameraStream;
+          await cameraPreview.play();
+
+          analysisCanvas.width = 160;
+          analysisCanvas.height = 120;
+
+          isCameraActive = true;
+          startCameraBtn.textContent = 'Stop camera';
+          startCameraBtn.classList.add('secondary');
+          setStatus(receiveStatus, 'Camera active. Calibrate for best results.', false);
+
+          calibrationDone = false;
+          calibrated = false;
+          // reset decoder
+          resetDecoder();
+
+          startAnalysisLoop();
+        } catch (err) {
+          console.error(err);
+          let msg = 'Camera error: ' + err.message;
+          if (location.protocol !== 'https:' && location.hostname !== 'localhost') {
+            msg = '⚠️ HTTPS required for camera. Use HTTPS or localhost.';
+          }
+          setStatus(receiveStatus, msg, true);
+        }
+      }
+
+      function stopCamera() {
+        if (animationFrameId) {
+          cancelAnimationFrame(animationFrameId);
+          animationFrameId = null;
+        }
+        if (cameraStream) {
+          cameraStream.getTracks().forEach(t => t.stop());
+          cameraStream = null;
+        }
+        isCameraActive = false;
+        startCameraBtn.textContent = 'Start camera';
+        startCameraBtn.classList.remove('secondary');
+        setStatus(receiveStatus, 'Camera stopped.', false);
+        brightnessFill.style.width = '0%';
+        brightnessValue.textContent = '0';
+        resetDecoder();
+      }
+
+      startCameraBtn.addEventListener('click', () => {
+        if (isCameraActive) {
+          stopCamera();
+        } else {
+          startCamera();
+        }
+      });
+
+      // ---------- ANALYSIS LOOP ----------
+      function startAnalysisLoop() {
+        function analyze() {
+          if (!isCameraActive) return;
+
+          if (cameraPreview.readyState === cameraPreview.HAVE_ENOUGH_DATA) {
+            const w = analysisCanvas.width;
+            const h = analysisCanvas.height;
+            ctx.drawImage(cameraPreview, 0, 0, w, h);
+
+            // sample center region (reticle area)
+            const cx = w / 2;
+            const cy = h / 2;
+            const sampleSize = Math.min(w, h) * 0.25; // 25% of min dimension
+            const sx = Math.max(0, Math.floor(cx - sampleSize / 2));
+            const sy = Math.max(0, Math.floor(cy - sampleSize / 2));
+            const sw = Math.min(w - sx, Math.floor(sampleSize));
+            const sh = Math.min(h - sy, Math.floor(sampleSize));
+
+            if (sw > 0 && sh > 0) {
+              const imageData = ctx.getImageData(sx, sy, sw, sh);
+              const data = imageData.data;
+              let sum = 0;
+              for (let i = 0; i < data.length; i += 4) {
+                const r = data[i];
+                const g = data[i + 1];
+                const b = data[i + 2];
+                // luminance
+                sum += 0.2126 * r + 0.7152 * g + 0.0722 * b;
+              }
+              const avg = sum / (data.length / 4);
+              lastBrightness = avg;
+              brightnessFill.style.width = Math.min(100, (avg / 255) * 100) + '%';
+              brightnessValue.textContent = Math.round(avg);
+
+              // push to history
+              brightnessHistory.push(avg);
+              if (brightnessHistory.length > 30) brightnessHistory.shift();
+
+              // auto-calibrate if not done (simple heuristic)
+              if (!calibrated && brightnessHistory.length > 10) {
+                const min = Math.min(...brightnessHistory);
+                const max = Math.max(...brightnessHistory);
+                if (max - min > 40) {
+                  // threshold midpoint
+                  const th = (min + max) / 2;
+                  thresholdLow = min + (max - min) * 0.25;
+                  thresholdHigh = min + (max - min) * 0.75;
+                  calibrated = true;
+                  setStatus(receiveStatus, `Auto-calibrated (${Math.round(thresholdLow)}–${Math.round(thresholdHigh)})`, false);
+                }
+              }
+
+              // decode if calibrated
+              if (calibrated) {
+                processBrightnessSample(avg);
+              }
+            }
+          }
+          animationFrameId = requestAnimationFrame(analyze);
+        }
+
+        analyze();
+      }
+
+      // ---------- CALIBRATION ----------
+      calibrateBtn.addEventListener('click', () => {
+        if (!isCameraActive) {
+          setStatus(receiveStatus, 'Start camera first.', true);
+          return;
+        }
+        // quick calibration: capture min/max over 2 seconds
+        setStatus(receiveStatus, 'Calibrating... (2s)');
+        const samples = [];
+        const startTime = performance.now();
+        const sampleFn = () => {
+          if (!isCameraActive) return;
+          if (performance.now() - startTime < 2000) {
+            if (cameraPreview.readyState === cameraPreview.HAVE_ENOUGH_DATA) {
+              const w = analysisCanvas.width, h = analysisCanvas.height;
+              ctx.drawImage(cameraPreview, 0, 0, w, h);
+              const cx = w / 2, cy = h / 2;
+              const sz = Math.min(w, h) * 0.25;
+              const sx = Math.max(0, Math.floor(cx - sz / 2));
+              const sy = Math.max(0, Math.floor(cy - sz / 2));
+              const sw = Math.min(w - sx, Math.floor(sz));
+              const sh = Math.min(h - sy, Math.floor(sz));
+              if (sw > 0 && sh > 0) {
+                const img = ctx.getImageData(sx, sy, sw, sh);
+                const d = img.data;
+                let sum = 0;
+                for (let i = 0; i < d.length; i += 4) {
+                  sum += 0.2126 * d[i] + 0.7152 * d[i+1] + 0.0722 * d[i+2];
+                }
+                samples.push(sum / (d.length / 4));
+              }
+            }
+            requestAnimationFrame(sampleFn);
+          } else {
+            if (samples.length > 5) {
+              const min = Math.min(...samples);
+              const max = Math.max(...samples);
+              if (max - min > 20) {
+                thresholdLow = min + (max - min) * 0.3;
+                thresholdHigh = min + (max - min) * 0.7;
+                calibrated = true;
+                setStatus(receiveStatus, `✅ Calibrated (low:${Math.round(thresholdLow)} high:${Math.round(thresholdHigh)})`, false);
+              } else {
+                // fallback
+                thresholdLow = 40;
+                thresholdHigh = 180;
+                calibrated = true;
+                setStatus(receiveStatus, 'Calibration low contrast, using defaults.', false);
+              }
+            } else {
+              thresholdLow = 40;
+              thresholdHigh = 180;
+              calibrated = true;
+              setStatus(receiveStatus, 'Insufficient samples, using defaults.', false);
+            }
+          }
+        };
+        requestAnimationFrame(sampleFn);
+      });
+
+      // ---------- DECODER (simplified but robust) ----------
+      function resetDecoder() {
+        receiveState = 'idle';
+        decodedBits = [];
+        bitBuffer = [];
+        lastEdgeTime = 0;
+        lightOn = false;
+        decodedText.textContent = '—';
+        if (decodeTimeout) clearTimeout(decodeTimeout);
+      }
+
+      function processBrightnessSample(brightness) {
+        if (!calibrated) return;
+
+        const isLight = brightness > (thresholdLow + thresholdHigh) / 2;
+        const now = performance.now();
+
+        // edge detection
+        if (isLight !== lightOn) {
+          // transition
+          if (isLight) {
+            // rising edge -> light on
+            if (receiveState === 'idle') {
+              // check for preamble: we need a pattern of alternating bits
+              // simplistic: start collecting
+              receiveState = 'preamble';
+              bitBuffer = [];
+              lastEdgeTime = now;
+            } else if (receiveState === 'preamble') {
+              // continue
+            } else if (receiveState === 'data') {
+              // record bit 1 (light on)
+              decodedBits.push(1);
+            }
+          } else {
+            // falling edge -> light off
+            if (receiveState === 'preamble') {
+              // try to match preamble pattern 1010... in bitBuffer
+              // We store bits as they come: on=1, off=0
+              // For simplicity, we'll accumulate bits in preamble phase
+            } else if (receiveState === 'data') {
+              decodedBits.push(0);
+            }
+          }
+
+          // record bit for preamble matching
+          if (receiveState === 'preamble') {
+            bitBuffer.push(isLight ? 1 : 0);
+            // check if we have at least 10 bits and match preamble
+            if (bitBuffer.length >= 10) {
+              const last10 = bitBuffer.slice(-10);
+              if (matchesPreamble(last10)) {
+                // preamble detected!
+                receiveState = 'data';
+                decodedBits = [];
+                setStatus(receiveStatus, '📡 Signal detected, receiving...', false);
+              } else {
+                // keep sliding window
+                if (bitBuffer.length > 20) bitBuffer.shift();
+              }
+            }
+          }
+
+          lightOn = isLight;
+          lastEdgeTime = now;
+        } else {
+          // no edge, check for timeout
+          const timeSinceEdge = now - lastEdgeTime;
+          const maxBitTime = pulseMs * 3;
+
+          if (receiveState === 'data' && decodedBits.length > 0 && timeSinceEdge > maxBitTime * 2) {
+            // possible end of transmission
+            // check for postamble or just stop
+            finishDecoding();
+          }
+
+          if (receiveState === 'preamble' && timeSinceEdge > 2000) {
+            // timeout preamble
+            resetDecoder();
+          }
+        }
+
+        // also check if we have received enough bits (8 bits per char) and postamble?
+        // We'll rely on timeout + postamble pattern
+        if (receiveState === 'data' && decodedBits.length >= 8) {
+          // check if last 10 bits match postamble
+          if (decodedBits.length >= 10) {
+            const last10 = decodedBits.slice(-10);
+            if (matchesPostamble(last10)) {
+              // remove postamble
+              decodedBits = decodedBits.slice(0, -10);
+              finishDecoding();
+            }
+          }
+        }
+      }
+
+      function matchesPreamble(bits) {
+        if (bits.length !== 10) return false;
+        const preamble = [1,0,1,0,1,0,1,0,1,0];
+        for (let i = 0; i < 10; i++) {
+          if (bits[i] !== preamble[i]) return false;
+        }
+        return true;
+      }
+
+      function matchesPostamble(bits) {
+        if (bits.length !== 10) return false;
+        const post = [0,1,0,1,0,1,0,1,0,1];
+        for (let i = 0; i < 10; i++) {
+          if (bits[i] !== post[i]) return false;
+        }
+        return true;
+      }
+
+      function finishDecoding() {
+        if (decodedBits.length < 8) {
+          resetDecoder();
+          return;
+        }
+
+        // ensure length multiple of 8
+        const byteLen = Math.floor(decodedBits.length / 8);
+        if (byteLen === 0) {
+          resetDecoder();
+          return;
+        }
+
+        let text = '';
+        for (let i = 0; i < byteLen * 8; i += 8) {
+          let byte = 0;
+          for (let b = 0; b < 8; b++) {
+            byte = (byte << 1) | (decodedBits[i + b] || 0);
+          }
+          if (byte >= 32 && byte <= 126) {
+            text += String.fromCharCode(byte);
+          } else {
+            text += '?';
+          }
+        }
+
+        decodedText.textContent = text || '(empty)';
+        setStatus(receiveStatus, `Received: "${text}"`, false);
+        receiveState = 'idle';
+        decodedBits = [];
+        bitBuffer = [];
+        lightOn = false;
+      }
+
+      // ---------- FALLBACK / ERROR HANDLING ----------
+      // ensure HTTPS note
+      if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+        const note = document.createElement('div');
+        note.className = 'note';
+        note.style.color = '#ffb86b';
+        note.style.marginTop = '12px';
+        note.textContent = '⚠️ Camera & flashlight require HTTPS. Screen strobe works without.';
+        app.appendChild(note);
+      }
+
+      // clean up on page unload
+      window.addEventListener('beforeunload', () => {
+        if (cameraStream) cameraStream.getTracks().forEach(t => t.stop());
+        if (torchStream) torchStream.getTracks().forEach(t => t.stop());
+        flashStrobe(false);
+      });
+
+      // prevent screen sleep while transmitting? not critical
+    })();
+  </script>
+</body>
+</html>
